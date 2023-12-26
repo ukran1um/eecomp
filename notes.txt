@@ -1,0 +1,15 @@
+#tutorial for streamlit hosting
+https://towardsdatascience.com/how-to-deploy-a-streamlit-app-using-an-amazon-free-ec2-instance-416a41f69dc3
+
+#ec2 connect
+ssh -i "~/.ssh/root_rsa.pem" ec2-user@ec2-34-205-157-59.compute-1.amazonaws.com
+
+
+#on the ec2
+tmux new -s ocr
+streamlit run ocr.py
+
+Ctrl+b then D to disconnect
+
+tmux attach -t ocr
+
