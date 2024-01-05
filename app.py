@@ -14,17 +14,6 @@ def get_random_poem_path(poem_type, num_poems):
     st.session_state.poem_number = poem_number
     return f'./{poem_type}_poems/{poem_number}.txt'
 
-
-def display_poem(num_real_poems, num_fake_poems):
-    if np.random.rand() > 0.5:
-        poem_path = get_random_poem_path("real", num_real_poems)
-        st.session_state.poem_source = "Human"
-    else:
-        poem_path = get_random_poem_path("fake", num_fake_poems)
-        st.session_state.poem_source = "AI"
-    poem = load_poem(poem_path)
-    st.session_state.poem = poem  # Store the poem in the session state
-    st.session_state.poem_path = poem_path
     
 def display_poem(num_real_poems, num_fake_poems):
     if np.random.rand() > 0.5:
@@ -42,15 +31,16 @@ def display_poem(num_real_poems, num_fake_poems):
 
 def save_results(source, rating, guess, path):
     new_data = pd.DataFrame({'Source': [source], 'Rating': [rating], 'Guess': [guess], 'Path': [path]})
-    if not os.path.isfile('results.csv'):
+    if not os.path.isfile('results.csv') or os.path.getsize('results.csv') == 0:
+        # Create a new file or overwrite an empty file with headers
         new_data.to_csv('results.csv', index=False)
     else:
-        df = pd.read_csv('results.csv')
-        df = pd.concat([df, new_data], ignore_index=True)
-        df.to_csv('results.csv', index=False)
+        # Append to the existing file without adding the header
+        new_data.to_csv('results.csv', mode='a', header=False, index=False)
 
 def calculate_poem_stats(poem_path):
-    if os.path.isfile('results.csv'):
+    # Check if the results file exists and is not empty
+    if os.path.isfile('results.csv') and os.path.getsize('results.csv') > 0:
         df = pd.read_csv('results.csv')
         poem_df = df[df['Path'] == poem_path]
         if not poem_df.empty:
@@ -59,7 +49,9 @@ def calculate_poem_stats(poem_path):
             total_guesses = len(poem_df)
             accuracy = (correct_guesses / total_guesses) * 100 if total_guesses > 0 else 0
             return avg_rating, accuracy
-    return None, None
+    else:
+        # Handle the case where there are no existing results
+        return None, None
 
 def get_author_by_poem_number(poem_number):
     if 1 <= poem_number <= 20:
