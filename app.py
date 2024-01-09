@@ -84,10 +84,14 @@ def main():
     elif 'poem' in st.session_state:
         # Display the stored poem
         st.markdown(f"<div style='background-color:darkgrey;padding:5px;'>{st.session_state.poem}</div>", unsafe_allow_html=True)
-        avg_rating, accuracy = calculate_poem_stats(st.session_state.poem_path)
-        if avg_rating is not None:
+        
+        stats = calculate_poem_stats(st.session_state.poem_path)
+        if stats:  # Check if stats is not None
+            avg_rating, accuracy = stats
             st.write(f"Average Rating for this Poem: {avg_rating:.2f}/10")
             st.write(f"Accuracy of Guesses: {accuracy:.2f}%")
+        else:
+            st.write("No ratings or guesses available for this poem yet.")
 
     rating = st.slider("Rate the quality of this poem from 1-10", 1, 10)
     guess = st.radio("Was this poem written by a human or AI?", ('Human', 'AI'))
